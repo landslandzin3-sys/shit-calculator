@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculadora</title>
+  <style>
+    :root{
+      --bg: #0b0f1a;
+      --panel: #121a2b;
+      --panel2: #0f1626;
+      --border: rgba(255,255,255,.08);
+      --text: #eaf0ff;
+      --muted: rgba(234,240,255,.65);
+      --btn: rgba(255,255,255,.06);
+      --btnHover: rgba(255,255,255,.10);
+      --accent: #6ee7ff;
+      --danger: #ff6b6b;
+      --ok: #4ade80;
+      --shadow: 0 18px 50px rgba(0,0,0,.55);
+      --radius: 18px;
+      --radius2: 14px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+    }
+
+    *{ box-sizing: border-box; }
+    body{
+      margin:0;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(110,231,255,.16), transparent 60%),
+        radial-gradient(900px 500px at 80% 20%, rgba(74,222,128,.10), transparent 55%),
+        radial-gradient(800px 600px at 50% 90%, rgba(155,115,255,.12), transparent 60%),
+        var(--bg);
+      font-family: var(--font);
+      color: var(--text);
+      padding: 24px;
+    }
+
+    .calc{
+      width: min(420px, 92vw);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .top{
+      padding: 18px 18px 10px;
+      background: linear-gradient(180deg, rgba(255,255,255,.05), transparent);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .brand .title{
+      font-weight: 700;
+      letter-spacing: .3px;
+      font-size: 14px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .pill{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 8px 10px;
+      background: rgba(0,0,0,.25);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+    }
+
+    .dot{
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--ok);
+      box-shadow: 0 0 18px rgba(74,222,128,.35);
+    }
+
+    .display{
+      background: rgba(0,0,0,.25);
+      border: 1px solid var(--border);
+      border-radius: var(--radius2);
+      padding: 12px 12px;
+      display:grid;
+      gap: 6px;
+      min-height: 90px;
+    }
+
+    .history{
+      font-size: 12px;
+      color: var(--muted);
+      min-height: 16px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .expr{
+      font-size: 18px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .result{
+      font-size: 34px;
+      font-weight: 750;
+      letter-spacing: .2px;
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .keys{
+      padding: 14px;
+      background: linear-gradient(180deg, transparent, rgba(0,0,0,.18));
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    button.key{
+      appearance:none;
+      border: 1px solid var(--border);
+      background: var(--btn);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 14px 12px;
+      font-size: 16px;
+      font-weight: 650;
+      cursor:pointer;
+      transition: transform .06s ease, background .15s ease, border-color .15s ease;
+      user-select:none;
+      outline:none;
+    }
+
+    button.key:hover{
+      background: var(--btnHover);
+      border-color: rgba(255,255,255,.14);
+    }
+    button.key:active{
+      transform: translateY(1px) scale(.99);
+    }
+
+    .op{ color: var(--accent); }
+    .danger{ color: var(--danger); }
+    .equal{
+      background: rgba(110,231,255,.14);
+      border-color: rgba(110,231,255,.22);
+    }
+    .equal:hover{
+      background: rgba(110,231,255,.18);
+      border-color: rgba(110,231,255,.30);
+    }
+
+    .span2{ grid-column: span 2; }
+
+    .footer{
+      padding: 0 18px 16px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    kbd{
+      font-family: var(--font);
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.25);
+      color: var(--text);
+    }
+  </style>
+</head>
+
+<body>
+  <main class="calc" aria-label="Calculadora">
+    <section class="top">
+      <div class="brand">
+        <div class="title">Calculadora HTML • CSS • JS</div>
+        <div class="pill" title="Suporta teclado">
+          <span class="dot" aria-hidden="true"></span>
+          Teclado: <kbd>Enter</kbd> <kbd>Esc</kbd> <kbd>Backspace</kbd>
+        </div>
+      </div>
+
+      <div class="display" role="group" aria-label="Display">
+        <div id="history" class="history"></div>
+        <div id="expr" class="expr">0</div>
+        <div id="result" class="result">0</div>
+      </div>
+    </section>
+
+    <section class="keys" aria-label="Teclas">
+      <button class="key danger" data-action="clear" title="Limpar (Esc)">AC</button>
+      <button class="key danger" data-action="back" title="Apagar (Backspace)">⌫</button>
+      <button class="key op" data-action="percent" title="Percentual">%</button>
+      <button class="key op" data-value="/" title="Dividir">÷</button>
+
+      <button class="key" data-value="7">7</button>
+      <button class="key" data-value="8">8</button>
+      <button class="key" data-value="9">9</button>
+      <button class="key op" data-value="*" title="Multiplicar">×</button>
+
+      <button class="key" data-value="4">4</button>
+      <button class="key" data-value="5">5</button>
+      <button class="key" data-value="6">6</button>
+      <button class="key op" data-value="-" title="Subtrair">−</button>
+
+      <button class="key" data-value="1">1</button>
+      <button class="key" data-value="2">2</button>
+      <button class="key" data-value="3">3</button>
+      <button class="key op" data-value="+" title="Somar">+</button>
+
+      <button class="key" data-value="(">(</button>
+      <button class="key" data-value=")">)</button>
+      <button class="key" data-action="dot">.</button>
+      <button class="key equal" data-action="equals" title="Calcular (Enter)">=</button>
+
+      <button class="key span2" data-value="0">0</button>
+      <button class="key" data-action="sign" title="Trocar sinal">±</button>
+      <button class="key" data-action="copy" title="Copiar resultado">Copiar</button>
+    </section>
+
+    <div class="footer">
+      Dicas: use <kbd>Enter</kbd> para calcular, <kbd>Esc</kbd> para limpar, <kbd>Backspace</kbd> para apagar.
+    </div>
+  </main>
+
+  <script>
+    const elHistory = document.getElementById("history");
+    const elExpr = document.getElementById("expr");
+    const elResult = document.getElementById("result");
+
+    let expr = "";          // expressão digitada
+    let lastResult = 0;     // último resultado
+    let historyLine = "";   // última conta
+
+    function setDisplay() {
+      elHistory.textContent = historyLine;
+      elExpr.textContent = expr || "0";
+      // tenta pré-visualizar quando for seguro
+      const preview = safeEval(expr);
+      elResult.textContent = (preview === null) ? (lastResult ?? 0) : formatNumber(preview);
+    }
+
+    function formatNumber(n) {
+      if (!Number.isFinite(n)) return "Erro";
+      // limita casas para evitar números gigantes por ponto flutuante
+      const rounded = Math.round((n + Number.EPSILON) * 1e10) / 1e10;
+      return String(rounded);
+    }
+
+    function isOperator(ch) {
+      return ["+", "-", "*", "/"].includes(ch);
+    }
+
+    function safeEval(raw) {
+      if (!raw) return null;
+
+      // Não avalia se termina com operador ou ponto
+      const t = raw.trim();
+      const last = t[t.length - 1];
+      if (isOperator(last) || last === "." || last === "(") return null;
+
+      // valida caracteres permitidos
+      if (!/^[0-9+\-*/().\s%]+$/.test(t)) return null;
+
+      // Trata % como "dividir por 100" no número anterior
+      // Ex.: 50% => (50/100) ; 200+10% => 200+ (10/100)
+      // (simples e útil para calculadora básica)
+      const withPercent = t.replace(/(\d+(\.\d+)?)%/g, "($1/100)");
+
+      try {
+        // eslint-disable-next-line no-new-func
+        const fn = Function(`"use strict"; return (${withPercent});`);
+        const out = fn();
+        if (typeof out !== "number") return null;
+        return out;
+      } catch {
+        return null;
+      }
+    }
+
+    function finalize() {
+      const value = safeEval(expr);
+      if (value === null || !Number.isFinite(value)) {
+        elResult.textContent = "Erro";
+        return;
+      }
+      historyLine = `${expr} = ${formatNumber(value)}`;
+      lastResult = value;
+      expr = String(formatNumber(value));
+      setDisplay();
+    }
+
+    function appendValue(v) {
+      // evita operadores duplicados
+      if (isOperator(v)) {
+        if (!expr) return; // não começa com operador (exceto '-')
+        const last = expr[expr.length - 1];
+        if (isOperator(last)) {
+          expr = expr.slice(0, -1) + v;
+          setDisplay();
+          return;
+        }
+      }
+      expr += v;
+      setDisplay();
+    }
+
+    function addDot() {
+      // adiciona ponto apenas no número atual (após o último operador/parêntese)
+      const parts = expr.split(/[\+\-\*\/\(\)\s]/);
+      const current = parts[parts.length - 1];
+      if (current.includes(".")) return;
+      expr += current === "" ? "0." : ".";
+      setDisplay();
+    }
+
+    function clearAll() {
+      expr = "";
+      historyLine = "";
+      lastResult = 0;
+      setDisplay();
+    }
+
+    function backspace() {
+      expr = expr.slice(0, -1);
+      setDisplay();
+    }
+
+    function toggleSign() {
+      // troca sinal do "número atual" (no final)
+      if (!expr) { expr = "-"; setDisplay(); return; }
+
+      // encontra o índice do começo do último número
+      let i = expr.length - 1;
+      while (i >= 0 && /[0-9.]/.test(expr[i])) i--;
+      const start = i + 1;
+
+      // se não tem número no fim, só adiciona "-"
+      if (start >= expr.length) {
+        expr += "-";
+        setDisplay();
+        return;
+      }
+
+      const before = expr.slice(0, start);
+      const num = expr.slice(start);
+
+      // se já tem "(-" antes do número, remove
+      if (before.endsWith("(-")) {
+        expr = before.slice(0, -2) + num;
+      } else {
+        // envolve em (-num) para não bagunçar precedência
+        expr = before + "(-" + num + ")";
+      }
+      setDisplay();
+    }
+
+    function percent() {
+      // aplica % ao número atual, se houver
+      // ex: 50 -> 50%
+      if (!expr) return;
+      // evita duplicar %%
+      if (expr.endsWith("%")) return;
+
+      // só se terminar em número/parêntese fechado
+      const last = expr[expr.length - 1];
+      if (/[0-9)]/.test(last)) {
+        expr += "%";
+        setDisplay();
+      }
+    }
+
+    async function copyResult() {
+      const value = safeEval(expr);
+      const text = (value === null) ? String(lastResult ?? 0) : formatNumber(value);
+      try {
+        await navigator.clipboard.writeText(text);
+        // feedback simples no histórico
+        const prev = historyLine;
+        historyLine = `Copiado: ${text}`;
+        setDisplay();
+        setTimeout(() => { historyLine = prev; setDisplay(); }, 900);
+      } catch {
+        // fallback: nada
+      }
+    }
+
+    document.querySelectorAll("button.key").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const action = btn.dataset.action;
+        const value = btn.dataset.value;
+
+        if (value) return appendValue(value);
+
+        switch (action) {
+          case "clear": return clearAll();
+          case "back": return backspace();
+          case "dot": return addDot();
+          case "equals": return finalize();
+          case "sign": return toggleSign();
+          case "percent": return percent();
+          case "copy": return copyResult();
+        }
+      });
+    });
+
+    // teclado
+    window.addEventListener("keydown", (e) => {
+      const k = e.key;
+
+      if ((k >= "0" && k <= "9") || ["+", "-", "*", "/", "(", ")"].includes(k)) {
+        e.preventDefault();
+        appendValue(k);
+        return;
+      }
+
+      if (k === "." || k === ",") {
+        e.preventDefault();
+        addDot();
+        return;
+      }
+
+      if (k === "Enter" || k === "=") {
+        e.preventDefault();
+        finalize();
+        return;
+      }
+
+      if (k === "Backspace") {
+        e.preventDefault();
+        backspace();
+        return;
+      }
+
+      if (k === "Escape") {
+        e.preventDefault();
+        clearAll();
+        return;
+      }
+
+      if (k === "%") {
+        e.preventDefault();
+        percent();
+        return;
+      }
+    });
+
+    setDisplay();
+  </script>
+</body>
+</html>
